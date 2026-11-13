@@ -1,0 +1,22 @@
+# Build output
+bin/
+obj/
+packages/
+nuget.exe
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+AppPackages/
+BundleArtifacts/
+
+# Release builds
+Release_v*/
+
+# Certificates
+*.pfx
+*.cer
+
+# OS files
+Thumbs.db
+.DS_Store

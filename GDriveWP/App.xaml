@@ -1,0 +1,81 @@
+<Application
+    x:Class="GDriveWP.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GDriveWP">
+
+    <!-- RequestedTheme is set in App() from the "Theme" LocalSettings value ("system" default, "light", "dark").
+         Always reference these keys with {ThemeResource ...}. Palette = Google Material baseline (same as GGTranslate). -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="PageBgBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="SurfaceLowBrush" Color="#F8FAFD" />
+                    <SolidColorBrush x:Key="SurfaceHighBrush" Color="#E9EEF6" />
+                    <SolidColorBrush x:Key="SheetBgBrush" Color="#EEF3FB" />
+                    <SolidColorBrush x:Key="OnSurfaceBrush" Color="#1F1F1F" />
+                    <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#444746" />
+                    <SolidColorBrush x:Key="OutlineBrush" Color="#747775" />
+                    <SolidColorBrush x:Key="OutlineVariantBrush" Color="#C4C7C5" />
+                    <SolidColorBrush x:Key="PrimaryBrush" Color="#0B57D0" />
+                    <SolidColorBrush x:Key="OnPrimaryBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="PrimaryContainerBrush" Color="#D3E3FD" />
+                    <SolidColorBrush x:Key="OnPrimaryContainerBrush" Color="#041E49" />
+                    <SolidColorBrush x:Key="SecondaryContainerBrush" Color="#C2E7FF" />
+                    <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#001D35" />
+                    <SolidColorBrush x:Key="SnackbarBgBrush" Color="#303030" />
+                    <SolidColorBrush x:Key="SnackbarTextBrush" Color="#F2F2F2" />
+                    <SolidColorBrush x:Key="ErrorBrush" Color="#B3261E" />
+                    <SolidColorBrush x:Key="ScrimBrush" Color="#66000000" />
+                    <SolidColorBrush x:Key="FolderIconBrush" Color="#5F6368" />
+
+                    <Color x:Key="PhoneAccentColor">#FF0B57D0</Color>
+                    <SolidColorBrush x:Key="PhoneAccentBrush" Color="#0B57D0" />
+                    <SolidColorBrush x:Key="TextSelectionHighlightColorThemeBrush" Color="#0B57D0" />
+                    <SolidColorBrush x:Key="ProgressBarForegroundThemeBrush" Color="#0B57D0" />
+                    <SolidColorBrush x:Key="ProgressBarIndeterminateForegroundThemeBrush" Color="#0B57D0" />
+                    <SolidColorBrush x:Key="ProgressBarBackgroundThemeBrush" Color="#0B57D0" Opacity="0.16" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="PageBgBrush" Color="#131314" />
+                    <SolidColorBrush x:Key="SurfaceBrush" Color="#131314" />
+                    <SolidColorBrush x:Key="SurfaceLowBrush" Color="#1B1B1C" />
+                    <SolidColorBrush x:Key="SurfaceHighBrush" Color="#2D2F31" />
+                    <SolidColorBrush x:Key="SheetBgBrush" Color="#1E1F20" />
+                    <SolidColorBrush x:Key="OnSurfaceBrush" Color="#E3E3E3" />
+                    <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#C4C7C5" />
+                    <SolidColorBrush x:Key="OutlineBrush" Color="#8E918F" />
+                    <SolidColorBrush x:Key="OutlineVariantBrush" Color="#444746" />
+                    <SolidColorBrush x:Key="PrimaryBrush" Color="#A8C7FA" />
+                    <SolidColorBrush x:Key="OnPrimaryBrush" Color="#062E6F" />
+                    <SolidColorBrush x:Key="PrimaryContainerBrush" Color="#0842A0" />
+                    <SolidColorBrush x:Key="OnPrimaryContainerBrush" Color="#D3E3FD" />
+                    <SolidColorBrush x:Key="SecondaryContainerBrush" Color="#004A77" />
+                    <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#C2E7FF" />
+                    <SolidColorBrush x:Key="SnackbarBgBrush" Color="#E3E3E3" />
+                    <SolidColorBrush x:Key="SnackbarTextBrush" Color="#303030" />
+                    <SolidColorBrush x:Key="ErrorBrush" Color="#F2B8B5" />
+                    <SolidColorBrush x:Key="ScrimBrush" Color="#99000000" />
+                    <SolidColorBrush x:Key="FolderIconBrush" Color="#C4C7C5" />
+
+                    <Color x:Key="PhoneAccentColor">#FFA8C7FA</Color>
+                    <SolidColorBrush x:Key="PhoneAccentBrush" Color="#A8C7FA" />
+                    <SolidColorBrush x:Key="TextSelectionHighlightColorThemeBrush" Color="#A8C7FA" />
+                    <SolidColorBrush x:Key="ProgressBarForegroundThemeBrush" Color="#A8C7FA" />
+                    <SolidColorBrush x:Key="ProgressBarIndeterminateForegroundThemeBrush" Color="#A8C7FA" />
+                    <SolidColorBrush x:Key="ProgressBarBackgroundThemeBrush" Color="#A8C7FA" Opacity="0.16" />
+                </ResourceDictionary>
+
+            </ResourceDictionary.ThemeDictionaries>
+
+            <!-- Google Sans Flex static instances (SIL OFL 1.1, Assets/Fonts/OFL.txt), families "GGT Sans" / "GGT Sans Medium" -->
+            <FontFamily x:Key="AppFont">/Assets/Fonts/AppFont-Regular.ttf#GGT Sans</FontFamily>
+            <FontFamily x:Key="AppFontMedium">/Assets/Fonts/AppFont-Medium.ttf#GGT Sans Medium</FontFamily>
+            <FontFamily x:Key="ContentFont">/Assets/Fonts/AppFont-Regular.ttf#GGT Sans, Segoe WP</FontFamily>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

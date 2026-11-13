@@ -1,0 +1,669 @@
+<Page
+    x:Class="GDriveWP.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GDriveWP"
+    FontFamily="{StaticResource AppFont}"
+    Background="{ThemeResource PageBgBrush}">
+
+    <Page.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVis" />
+
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinWidth" Value="48" />
+            <Setter Property="MinHeight" Value="48" />
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Foreground" Value="{ThemeResource OnSurfaceVariantBrush}" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="FilledButton" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource PrimaryBrush}" />
+            <Setter Property="Foreground" Value="{ThemeResource OnPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontFamily" Value="{StaticResource AppFontMedium}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Padding" Value="20,10" />
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+        <Style x:Key="TonalButton" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource SecondaryContainerBrush}" />
+            <Setter Property="Foreground" Value="{ThemeResource OnSecondaryContainerBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontFamily" Value="{StaticResource AppFontMedium}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Padding" Value="20,10" />
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+        <Style x:Key="TextButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{ThemeResource PrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontFamily" Value="{StaticResource AppFontMedium}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="MinHeight" Value="40" />
+        </Style>
+
+        <Style x:Key="PlainListItem" TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontMedium}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{ThemeResource PrimaryBrush}" />
+            <Setter Property="Margin" Value="16,20,16,8" />
+        </Style>
+
+        <Style x:Key="BarTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontMedium}" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Foreground" Value="{ThemeResource OnSurfaceBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+
+        <!-- One file / folder row (Drive list layout: 40 px icon, name, meta line, more button) -->
+        <DataTemplate x:Key="FileItemTemplate">
+            <Grid Height="64" Background="Transparent" Holding="Row_Holding" Tag="{Binding}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="48" />
+                </Grid.ColumnDefinitions>
+                <Grid Width="40" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Path Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                          Fill="{ThemeResource FolderIconBrush}" Stretch="Uniform" Width="28" Height="28"
+                          Visibility="{Binding FolderIconVisibility}" />
+                    <Border Background="{Binding TypeColor}" CornerRadius="6" Width="34" Height="40" Visibility="{Binding TypeIconVisibility}">
+                        <TextBlock Text="{Binding TypeLabel}" Foreground="White" FontSize="10" FontFamily="{StaticResource AppFontMedium}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border CornerRadius="6" Width="40" Height="40" Visibility="{Binding ThumbVisibility}" Background="{ThemeResource SurfaceHighBrush}">
+                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" Width="40" Height="40" />
+                    </Border>
+                </Grid>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <TextBlock Text="{Binding Name}" FontSize="16" FontFamily="{StaticResource ContentFont}" Foreground="{ThemeResource OnSurfaceBrush}"
+                               TextTrimming="CharacterEllipsis" MaxLines="1" />
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <Path Data="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                              Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="12" Height="12" Margin="0,0,4,0"
+                              Visibility="{Binding StarVisibility}" VerticalAlignment="Center" />
+                        <Path Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                              Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="13" Height="13" Margin="0,0,4,0"
+                              Visibility="{Binding SharedVisibility}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding SubText}" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextTrimming="CharacterEllipsis" MaxLines="1" />
+                    </StackPanel>
+                </StackPanel>
+                <Button Grid.Column="2" Style="{StaticResource IconButton}" Click="RowMore_Click" Tag="{Binding}">
+                    <Path Data="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                          Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="20" Height="20" />
+                </Button>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Folder rows of the move picker -->
+        <DataTemplate x:Key="FolderPickTemplate">
+            <Grid Height="56" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Path Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                      Fill="{ThemeResource FolderIconBrush}" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="16" FontFamily="{StaticResource ContentFont}" Foreground="{ThemeResource OnSurfaceBrush}"
+                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,16,0" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- Rows of the activity (transfers) panel -->
+        <DataTemplate x:Key="TransferTemplate">
+            <Grid Margin="16,6,8,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="40" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontSize="14" Foreground="{ThemeResource OnSurfaceBrush}" TextTrimming="CharacterEllipsis" MaxLines="1" />
+                    <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextTrimming="CharacterEllipsis" MaxLines="1" />
+                    <ProgressBar Value="{Binding Percent}" Maximum="100" Height="4" Margin="0,4,0,0" Visibility="{Binding RunningVisibility}" />
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource IconButton}" Width="40" Height="40" MinWidth="40" MinHeight="40" Click="TransferClose_Click" Tag="{Binding}">
+                    <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                          Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="16" Height="16" />
+                </Button>
+            </Grid>
+        </DataTemplate>
+
+        <Storyboard x:Name="ToastFadeInStoryboard">
+            <DoubleAnimation Storyboard.TargetName="ToastNotification" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.18" />
+        </Storyboard>
+        <Storyboard x:Name="ToastFadeOutStoryboard" Completed="ToastFadeOutStoryboard_Completed">
+            <DoubleAnimation Storyboard.TargetName="ToastNotification" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.25" />
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid x:Name="RootGrid" Background="{ThemeResource PageBgBrush}">
+
+        <!-- ================================================================ MAIN SHELL -->
+        <Grid x:Name="MainShell">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Top bar: search pill (home) or folder bar -->
+            <Grid Grid.Row="0" Background="{ThemeResource SurfaceBrush}">
+                <Grid x:Name="HomeBar" Height="68" Margin="12,8,12,4">
+                    <Border x:Name="SearchPill" Background="{ThemeResource SurfaceHighBrush}" CornerRadius="26" Height="52" Tapped="SearchPill_Tapped">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="52" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="52" />
+                            </Grid.ColumnDefinitions>
+                            <Path Data="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                                  Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="Tìm kiếm trong Drive" FontSize="16" Foreground="{ThemeResource OnSurfaceVariantBrush}" VerticalAlignment="Center" />
+                            <Grid Grid.Column="2" Width="34" Height="34" HorizontalAlignment="Center" VerticalAlignment="Center" Tapped="Avatar_Tapped">
+                                <Ellipse Fill="{ThemeResource PrimaryBrush}" />
+                                <TextBlock x:Name="AvatarLetter" Text="G" Foreground="{ThemeResource OnPrimaryBrush}" FontSize="16" FontFamily="{StaticResource AppFontMedium}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Ellipse x:Name="AvatarEllipse" Visibility="Collapsed">
+                                    <Ellipse.Fill>
+                                        <ImageBrush x:Name="AvatarImageBrush" Stretch="UniformToFill" />
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+                <Grid x:Name="FolderBar" Height="56" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="56" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="48" />
+                        <ColumnDefinition Width="48" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="BackFolderButton" Style="{StaticResource IconButton}" Click="BackFolderButton_Click" HorizontalAlignment="Center">
+                        <Path Data="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" Fill="{ThemeResource OnSurfaceBrush}" Stretch="Uniform" Width="22" Height="22" />
+                    </Button>
+                    <TextBlock x:Name="FolderTitle" Grid.Column="1" Style="{StaticResource BarTitle}" Text="Thư mục" />
+                    <Button x:Name="SearchInFolderButton" Grid.Column="2" Style="{StaticResource IconButton}" Click="SearchInFolderButton_Click">
+                        <Path Data="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                              Fill="{ThemeResource OnSurfaceBrush}" Stretch="Uniform" Width="22" Height="22" />
+                    </Button>
+                    <Button x:Name="FolderMoreButton" Grid.Column="3" Style="{StaticResource IconButton}" Click="FolderMoreButton_Click">
+                        <Path Data="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                              Fill="{ThemeResource OnSurfaceBrush}" Stretch="Uniform" Width="20" Height="20" />
+                    </Button>
+                </Grid>
+            </Grid>
+
+            <!-- Content -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Section header: title + sort -->
+                <Grid x:Name="ListHeader" Height="48" Margin="16,0,8,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="TabTitle" Text="Gợi ý" FontSize="16" FontFamily="{StaticResource AppFontMedium}" Foreground="{ThemeResource OnSurfaceBrush}" VerticalAlignment="Center" />
+                    <Border x:Name="TrashButton" Grid.Column="1" Background="Transparent" Padding="10,6" Tapped="TrashButton_Tapped" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                                  Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center" />
+                            <TextBlock Text="Thùng rác" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <Border x:Name="SortButton" Grid.Column="2" Background="Transparent" Padding="10,6" Tapped="SortButton_Tapped" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="SortText" Text="Tên" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" VerticalAlignment="Center" />
+                            <Path Data="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"
+                                  Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="16" Height="16" Margin="6,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <ListView x:Name="FileListView" ItemTemplate="{StaticResource FileItemTemplate}" ItemContainerStyle="{StaticResource PlainListItem}"
+                              IsItemClickEnabled="True" ItemClick="FileListView_ItemClick" SelectionMode="None"
+                              ContainerContentChanging="FileListView_ContainerContentChanging" Loaded="FileListView_Loaded"
+                              Padding="0,0,0,88" />
+                    <ProgressBar x:Name="LoadMoreBar" IsIndeterminate="True" VerticalAlignment="Bottom" Margin="0,0,0,80" Visibility="Collapsed" />
+                    <ProgressRing x:Name="LoadingRing" Width="48" Height="48" IsActive="False" Visibility="Collapsed" Foreground="{ThemeResource PrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                    <StackPanel x:Name="EmptyPanel" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="32,0,32,80">
+                        <Path Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                              Fill="{ThemeResource OutlineVariantBrush}" Stretch="Uniform" Width="72" Height="72" HorizontalAlignment="Center" />
+                        <TextBlock x:Name="EmptyTitle" Text="Chưa có tệp nào" FontSize="18" FontFamily="{StaticResource AppFontMedium}" Foreground="{ThemeResource OnSurfaceBrush}" TextAlignment="Center" Margin="0,16,0,6" />
+                        <TextBlock x:Name="EmptyText" Text="Nhấn + để tải tệp lên hoặc tạo thư mục." FontSize="14" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="ErrorPanel" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="32,0,32,80">
+                        <TextBlock x:Name="ErrorText" Text="Không tải được" FontSize="15" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" TextWrapping="Wrap" />
+                        <Button x:Name="RetryButton" Content="Thử lại" Style="{StaticResource TonalButton}" HorizontalAlignment="Center" Margin="0,16,0,0" Click="RetryButton_Click" />
+                    </StackPanel>
+
+                    <!-- FAB -->
+                    <Border x:Name="FabButton" Width="56" Height="56" CornerRadius="16" Background="{ThemeResource PrimaryContainerBrush}"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,16,16" Tapped="FabButton_Tapped">
+                        <Path Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Fill="{ThemeResource OnPrimaryContainerBrush}" Stretch="Uniform" Width="24" Height="24" />
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- Activity (uploads / downloads) -->
+            <Border x:Name="TransfersPanel" Grid.Row="2" Background="{ThemeResource SurfaceLowBrush}" BorderBrush="{ThemeResource OutlineVariantBrush}" BorderThickness="0,1,0,0" Visibility="Collapsed">
+                <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="TransfersList" ItemTemplate="{StaticResource TransferTemplate}" />
+                </ScrollViewer>
+            </Border>
+
+            <!-- Bottom navigation (Home / Starred / Shared / Files) -->
+            <Grid x:Name="BottomNav" Grid.Row="3" Height="68" Background="{ThemeResource SurfaceLowBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="Transparent" Tapped="Nav_Tapped" Tag="home">
+                    <StackPanel VerticalAlignment="Center">
+                        <Border x:Name="NavHomePill" Width="56" Height="30" CornerRadius="15" Background="{ThemeResource SecondaryContainerBrush}" HorizontalAlignment="Center">
+                            <Path x:Name="NavHomeIcon" Data="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" Fill="{ThemeResource OnSecondaryContainerBrush}" Stretch="Uniform" Width="22" Height="22" />
+                        </Border>
+                        <TextBlock x:Name="NavHomeText" Text="Trang chủ" FontSize="11" Foreground="{ThemeResource OnSurfaceBrush}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="Transparent" Tapped="Nav_Tapped" Tag="starred">
+                    <StackPanel VerticalAlignment="Center">
+                        <Border x:Name="NavStarredPill" Width="56" Height="30" CornerRadius="15" Background="Transparent" HorizontalAlignment="Center">
+                            <Path x:Name="NavStarredIcon" Data="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"
+                                  Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="22" Height="22" />
+                        </Border>
+                        <TextBlock x:Name="NavStarredText" Text="Dấu sao" FontSize="11" Foreground="{ThemeResource OnSurfaceVariantBrush}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="Transparent" Tapped="Nav_Tapped" Tag="shared">
+                    <StackPanel VerticalAlignment="Center">
+                        <Border x:Name="NavSharedPill" Width="56" Height="30" CornerRadius="15" Background="Transparent" HorizontalAlignment="Center">
+                            <Path x:Name="NavSharedIcon" Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                                  Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="22" Height="22" />
+                        </Border>
+                        <TextBlock x:Name="NavSharedText" Text="Đã chia sẻ" FontSize="11" Foreground="{ThemeResource OnSurfaceVariantBrush}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="Transparent" Tapped="Nav_Tapped" Tag="files">
+                    <StackPanel VerticalAlignment="Center">
+                        <Border x:Name="NavFilesPill" Width="56" Height="30" CornerRadius="15" Background="Transparent" HorizontalAlignment="Center">
+                            <Path x:Name="NavFilesIcon" Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                                  Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="22" Height="22" />
+                        </Border>
+                        <TextBlock x:Name="NavFilesText" Text="Tệp" FontSize="11" Foreground="{ThemeResource OnSurfaceVariantBrush}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- ================================================================ SEARCH -->
+        <Grid x:Name="SearchPage" Visibility="Collapsed" Background="{ThemeResource PageBgBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Height="64" Background="{ThemeResource SurfaceBrush}" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="56" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="48" />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="SearchBackButton" Style="{StaticResource IconButton}" Click="SearchBackButton_Click" HorizontalAlignment="Center">
+                    <Path Data="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" Fill="{ThemeResource OnSurfaceBrush}" Stretch="Uniform" Width="22" Height="22" />
+                </Button>
+                <TextBox x:Name="SearchBox" Grid.Column="1" PlaceholderText="Tìm kiếm trong Drive" FontSize="17" VerticalAlignment="Center" BorderThickness="0"
+                         Background="Transparent" FontFamily="{StaticResource ContentFont}" TextChanged="SearchBox_TextChanged" KeyDown="SearchBox_KeyDown" InputScope="Search" />
+                <Button x:Name="SearchClearButton" Grid.Column="2" Style="{StaticResource IconButton}" Click="SearchClearButton_Click" Visibility="Collapsed">
+                    <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" Fill="{ThemeResource OnSurfaceVariantBrush}" Stretch="Uniform" Width="18" Height="18" />
+                </Button>
+            </Grid>
+            <Grid Grid.Row="1">
+                <ListView x:Name="SearchListView" ItemTemplate="{StaticResource FileItemTemplate}" ItemContainerStyle="{StaticResource PlainListItem}"
+                          IsItemClickEnabled="True" ItemClick="SearchListView_ItemClick" SelectionMode="None"
+                          ContainerContentChanging="FileListView_ContainerContentChanging" />
+                <ProgressRing x:Name="SearchLoadingRing" Width="40" Height="40" IsActive="False" Visibility="Collapsed" Foreground="{ThemeResource PrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24,0,0" />
+                <TextBlock x:Name="SearchEmptyText" Text="Nhập tên tệp hoặc thư mục cần tìm." FontSize="14" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="32,40,32,0" />
+            </Grid>
+        </Grid>
+
+        <!-- ================================================================ MOVE PICKER -->
+        <Grid x:Name="MovePage" Visibility="Collapsed" Background="{ThemeResource PageBgBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid Height="64" Background="{ThemeResource SurfaceBrush}" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="56" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="MoveBackButton" Style="{StaticResource IconButton}" Click="MoveBackButton_Click" HorizontalAlignment="Center">
+                    <Path Data="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" Fill="{ThemeResource OnSurfaceBrush}" Stretch="Uniform" Width="22" Height="22" />
+                </Button>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock x:Name="MoveTitle" Text="Di chuyển" Style="{StaticResource BarTitle}" FontSize="18" />
+                    <TextBlock x:Name="MoveSubtitle" Text="Drive của tôi" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="1">
+                <ListView x:Name="MoveListView" ItemTemplate="{StaticResource FolderPickTemplate}" ItemContainerStyle="{StaticResource PlainListItem}"
+                          IsItemClickEnabled="True" ItemClick="MoveListView_ItemClick" SelectionMode="None" />
+                <ProgressRing x:Name="MoveLoadingRing" Width="40" Height="40" IsActive="False" Visibility="Collapsed" Foreground="{ThemeResource PrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock x:Name="MoveEmptyText" Text="Không có thư mục con." Visibility="Collapsed" FontSize="14" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" Margin="32,40,32,0" />
+            </Grid>
+            <Border Grid.Row="2" Background="{ThemeResource SurfaceLowBrush}" Padding="16,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="MoveCancelButton" Content="Huỷ" Style="{StaticResource TextButton}" HorizontalAlignment="Stretch" Click="MoveBackButton_Click" Margin="0,0,6,0" />
+                    <Button x:Name="MoveHereButton" Grid.Column="1" Content="Di chuyển vào đây" Style="{StaticResource FilledButton}" Click="MoveHereButton_Click" Margin="6,0,0,0" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ================================================================ DETAILS -->
+        <Grid x:Name="DetailsPage" Visibility="Collapsed" Background="{ThemeResource PageBgBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Height="64" Background="{ThemeResource SurfaceBrush}" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="56" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Style="{StaticResource IconButton}" Click="SubPageBack_Click" HorizontalAlignment="Center">
+                    <Path Data="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" Fill="{ThemeResource OnSurfaceBrush}" Stretch="Uniform" Width="22" Height="22" />
+                </Button>
+                <TextBlock Grid.Column="1" Text="Chi tiết" Style="{StaticResource BarTitle}" />
+            </Grid>
+            <ScrollViewer Grid.Row="1">
+                <StackPanel Margin="0,8,0,24">
+                    <Grid Margin="16,8,16,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="64" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Width="48" Height="48">
+                            <Path x:Name="DetailsFolderIcon" Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                                  Fill="{ThemeResource FolderIconBrush}" Stretch="Uniform" Width="40" Height="40" Visibility="Collapsed" />
+                            <Border x:Name="DetailsTypeBadge" CornerRadius="8" Width="42" Height="48" Background="#5F6368">
+                                <TextBlock x:Name="DetailsTypeLabel" Text="FILE" Foreground="White" FontSize="12" FontFamily="{StaticResource AppFontMedium}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                        <TextBlock x:Name="DetailsName" Grid.Column="1" Text="" FontSize="18" FontFamily="{StaticResource ContentFont}" Foreground="{ThemeResource OnSurfaceBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                    </Grid>
+                    <Border Height="1" Background="{ThemeResource OutlineVariantBrush}" Margin="16,0" />
+                    <StackPanel Margin="16,12,16,0">
+                        <TextBlock Text="Loại" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                        <TextBlock x:Name="DetailsType" FontSize="15" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,2,0,14" TextWrapping="Wrap" />
+                        <TextBlock Text="Kích thước" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                        <TextBlock x:Name="DetailsSize" FontSize="15" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,2,0,14" />
+                        <TextBlock Text="Sửa đổi lần cuối" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                        <TextBlock x:Name="DetailsModified" FontSize="15" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,2,0,14" />
+                        <TextBlock Text="Chủ sở hữu" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                        <TextBlock x:Name="DetailsOwner" FontSize="15" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,2,0,14" />
+                        <TextBlock Text="Vị trí" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                        <TextBlock x:Name="DetailsLocation" FontSize="15" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,2,0,14" TextWrapping="Wrap" />
+                        <TextBlock Text="Chia sẻ" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                        <TextBlock x:Name="DetailsShared" FontSize="15" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,2,0,14" />
+                        <TextBlock Text="Mã tệp" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                        <TextBlock x:Name="DetailsId" FontSize="13" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,2,0,14" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button x:Name="DetailsOpenWebButton" Content="Mở trên web" Style="{StaticResource TonalButton}" Margin="16,8,16,0" Click="DetailsOpenWebButton_Click" />
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ================================================================ SETTINGS -->
+        <Grid x:Name="SettingsPage" Visibility="Collapsed" Background="{ThemeResource PageBgBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Height="64" Background="{ThemeResource SurfaceBrush}" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="56" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Style="{StaticResource IconButton}" Click="SubPageBack_Click" HorizontalAlignment="Center">
+                    <Path Data="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" Fill="{ThemeResource OnSurfaceBrush}" Stretch="Uniform" Width="22" Height="22" />
+                </Button>
+                <TextBlock Grid.Column="1" Text="Cài đặt" Style="{StaticResource BarTitle}" />
+            </Grid>
+            <ScrollViewer Grid.Row="1">
+                <StackPanel Margin="0,0,0,32">
+                    <!-- Account card -->
+                    <Border Background="{ThemeResource SheetBgBrush}" CornerRadius="16" Margin="16,12,16,0" Padding="16">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="64" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid Width="52" Height="52" HorizontalAlignment="Left">
+                                    <Ellipse Fill="{ThemeResource PrimaryBrush}" />
+                                    <TextBlock x:Name="SettingsAvatarLetter" Text="G" Foreground="{ThemeResource OnPrimaryBrush}" FontSize="22" FontFamily="{StaticResource AppFontMedium}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Ellipse x:Name="SettingsAvatarEllipse" Visibility="Collapsed">
+                                        <Ellipse.Fill>
+                                            <ImageBrush x:Name="SettingsAvatarBrush" Stretch="UniformToFill" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                </Grid>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="SettingsUserName" Text="Chưa đăng nhập" FontSize="17" FontFamily="{StaticResource AppFontMedium}" Foreground="{ThemeResource OnSurfaceBrush}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="SettingsUserEmail" Text="" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock x:Name="AccessModeText" Text="" FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" Margin="0,10,0,0" TextWrapping="Wrap" />
+                            <ProgressBar x:Name="StorageBar" Maximum="100" Value="0" Height="6" Margin="0,12,0,6" />
+                            <TextBlock x:Name="StorageText" Text="" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                            <Button x:Name="LogoutButton" Content="Đăng xuất" Style="{StaticResource TonalButton}" Margin="0,14,0,0" Click="LogoutButton_Click" />
+                            <Button x:Name="SettingsLoginButton" Content="Đăng nhập" Style="{StaticResource FilledButton}" Margin="0,14,0,0" Click="SettingsLoginButton_Click" Visibility="Collapsed" />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="Google Cloud OAuth" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Text="Tạo OAuth Client ID (loại Desktop app hoặc TVs and Limited Input devices) trong Google Cloud Console, bật Google Drive API, rồi dán vào đây." FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="16,0,16,8" />
+                    <TextBox x:Name="ClientIdBox" PlaceholderText="Client ID (…apps.googleusercontent.com)" Margin="16,4,16,0" FontSize="14" />
+                    <TextBox x:Name="ClientSecretBox" PlaceholderText="Client secret" Margin="16,8,16,0" FontSize="14" />
+                    <Button x:Name="SaveClientButton" Content="Lưu" Style="{StaticResource TonalButton}" Margin="16,10,16,0" Click="SaveClientButton_Click" />
+
+                    <TextBlock Text="Giao diện" Style="{StaticResource SectionTitle}" />
+                    <ComboBox x:Name="ThemeCombo" Margin="16,0,16,0" HorizontalAlignment="Stretch" SelectionChanged="ThemeCombo_SelectionChanged">
+                        <ComboBoxItem Content="Sáng" Tag="light" />
+                        <ComboBoxItem Content="Tối" Tag="dark" />
+                        <ComboBoxItem Content="Theo hệ thống" Tag="system" />
+                    </ComboBox>
+                    <TextBlock Text="Khởi động lại ứng dụng để áp dụng." FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" Margin="16,6,16,0" />
+
+                    <TextBlock Text="Bộ nhớ đệm" Style="{StaticResource SectionTitle}" />
+                    <TextBlock x:Name="CacheSizeText" Text="Hình thu nhỏ và tệp xem trước: …" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" Margin="16,0,16,8" />
+                    <Button x:Name="ClearCacheButton" Content="Xoá bộ nhớ đệm" Style="{StaticResource TonalButton}" Margin="16,0,16,0" Click="ClearCacheButton_Click" />
+
+                    <TextBlock Text="Giới thiệu" Style="{StaticResource SectionTitle}" />
+                    <TextBlock x:Name="VersionText" Text="GG Drive 1.0.0.0" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" Margin="16,0,16,4" />
+                    <TextBlock Text="Ứng dụng Google Drive không chính thức cho Windows Phone 8.1. Không liên kết với Google LLC." FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="16,0,16,0" />
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ================================================================ VIEWER -->
+        <Grid x:Name="ViewerPage" Visibility="Collapsed" Background="#000000">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid x:Name="ViewerBar" Height="56" Background="#CC000000" Canvas.ZIndex="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="56" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="48" />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="ViewerBackButton" Style="{StaticResource IconButton}" Click="ViewerBackButton_Click" HorizontalAlignment="Center">
+                    <Path Data="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" Fill="White" Stretch="Uniform" Width="22" Height="22" />
+                </Button>
+                <TextBlock x:Name="ViewerTitle" Grid.Column="1" Text="" FontSize="17" FontFamily="{StaticResource ContentFont}" Foreground="White" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                <Button x:Name="ViewerMoreButton" Grid.Column="2" Style="{StaticResource IconButton}" Click="ViewerMoreButton_Click">
+                    <Path Data="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" Fill="White" Stretch="Uniform" Width="20" Height="20" />
+                </Button>
+            </Grid>
+            <Grid Grid.Row="1">
+                <ScrollViewer x:Name="ImageViewerScroll" ZoomMode="Enabled" MinZoomFactor="1" MaxZoomFactor="6"
+                              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Auto" VerticalScrollMode="Auto"
+                              Visibility="Collapsed" Tapped="ImageViewerScroll_Tapped">
+                    <Image x:Name="ViewerImage" Stretch="Uniform" />
+                </ScrollViewer>
+                <MediaElement x:Name="VideoPlayer" AreTransportControlsEnabled="True" AutoPlay="True" Visibility="Collapsed"
+                              MediaFailed="VideoPlayer_MediaFailed" />
+                <Border x:Name="ViewerPdfBar" Background="#CC000000" VerticalAlignment="Bottom" Padding="16,10" Visibility="Collapsed">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="ViewerPdfText" Text="Xem trước trang đầu" Foreground="#DDDDDD" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        <Button x:Name="ViewerPdfOpenButton" Grid.Column="1" Content="Mở toàn bộ" Style="{StaticResource FilledButton}" HorizontalAlignment="Right" Margin="12,0,0,0" Click="ViewerPdfOpenButton_Click" />
+                    </Grid>
+                </Border>
+                <StackPanel x:Name="ViewerStatusPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="32,0" Visibility="Collapsed">
+                    <ProgressBar x:Name="ViewerProgress" Maximum="100" Width="260" Height="6" IsIndeterminate="True" Foreground="#A8C7FA" Background="#333333" />
+                    <TextBlock x:Name="ViewerStatus" Text="Đang tải…" Foreground="#DDDDDD" FontSize="14" TextAlignment="Center" Margin="0,12,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel x:Name="ViewerUnsupportedPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="32,0" Visibility="Collapsed">
+                    <Border x:Name="ViewerTypeBadge" CornerRadius="10" Width="64" Height="76" Background="#5F6368" HorizontalAlignment="Center">
+                        <TextBlock x:Name="ViewerTypeLabel" Text="FILE" Foreground="White" FontSize="16" FontFamily="{StaticResource AppFontMedium}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock x:Name="ViewerUnsupportedText" Text="Không xem trước được loại tệp này." Foreground="#DDDDDD" FontSize="14" TextAlignment="Center" TextWrapping="Wrap" Margin="0,16,0,16" />
+                    <Button x:Name="OpenExternalButton" Content="Mở bằng ứng dụng khác" Style="{StaticResource FilledButton}" Click="OpenExternalButton_Click" />
+                    <Button x:Name="ViewerDownloadButton" Content="Tải xuống" Style="{StaticResource TonalButton}" Margin="0,10,0,0" Click="ViewerDownloadButton_Click" />
+                    <Button x:Name="ViewerWebButton" Content="Mở trên web" Style="{StaticResource TonalButton}" Margin="0,10,0,0" Click="ViewerWebButton_Click" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- ================================================================ LOGIN -->
+        <Grid x:Name="LoginPage" Visibility="Collapsed" Background="{ThemeResource SurfaceBrush}" Canvas.ZIndex="90">
+            <ScrollViewer>
+                <StackPanel Margin="28,40,28,32">
+                    <Canvas Width="88" Height="78" HorizontalAlignment="Center">
+                        <Polygon Points="29,0 43,0 14,52 0,52" Fill="#00AC47" />
+                        <Polygon Points="43,0 58,0 87,52 73,52" Fill="#FFBA00" />
+                        <Polygon Points="0,52 87,52 72,78 15,78" Fill="#2684FC" />
+                    </Canvas>
+                    <TextBlock Text="Google Drive" FontSize="26" FontFamily="{StaticResource AppFontMedium}" Foreground="{ThemeResource OnSurfaceBrush}" TextAlignment="Center" Margin="0,20,0,6" />
+                    <TextBlock Text="Lưu trữ, truy cập và chia sẻ tệp của bạn ở mọi nơi." FontSize="15" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,28" />
+
+                    <StackPanel x:Name="LoginChooser">
+                        <Border x:Name="LoginSetupHint" Background="{ThemeResource SheetBgBrush}" CornerRadius="12" Padding="14" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Cần Client ID của bạn" FontSize="15" FontFamily="{StaticResource AppFontMedium}" Foreground="{ThemeResource OnSurfaceBrush}" />
+                                <TextBlock Text="Google không cho phép đăng nhập trong trình duyệt nhúng, nên ứng dụng dùng OAuth Client ID riêng của bạn (miễn phí, tạo trong Google Cloud Console)." FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="0,4,0,10" />
+                                <Button x:Name="LoginSetupButton" Content="Nhập Client ID / secret" Style="{StaticResource TonalButton}" Click="LoginSetupButton_Click" />
+                            </StackPanel>
+                        </Border>
+                        <Button x:Name="LoginQrButton" Content="Đăng nhập bằng mã thiết bị (QR)" Style="{StaticResource FilledButton}" Click="LoginQrButton_Click" />
+                        <TextBlock Text="Nhanh, quét QR bằng máy khác. Chỉ thấy các tệp do ứng dụng này tải lên (phạm vi drive.file)." FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="4,6,4,16" />
+                        <Button x:Name="LoginCodeButton" Content="Toàn quyền Drive (dán mã)" Style="{StaticResource TonalButton}" Click="LoginCodeButton_Click" />
+                        <TextBlock Text="Mở trang đăng nhập Google trong trình duyệt, rồi dán mã trả về. Thấy toàn bộ Drive của tôi." FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="4,6,4,0" />
+                        <Button x:Name="LoginSettingsButton" Content="Cài đặt Client ID / secret…" Style="{StaticResource TextButton}" HorizontalAlignment="Center" Margin="0,20,0,0" Click="LoginSetupButton_Click" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="DeviceCodePanel" Visibility="Collapsed">
+                        <Border Background="White" CornerRadius="16" Padding="12" Width="208" Height="208" HorizontalAlignment="Center">
+                            <Grid>
+                                <Image x:Name="DeviceCodeQrImage" Stretch="Uniform" Width="184" Height="184" />
+                                <ProgressRing x:Name="DeviceCodeQrLoading" IsActive="True" Foreground="#0B57D0" Width="36" Height="36" />
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="1. Trên máy khác, mở google.com/device (hoặc quét QR)" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,16,0,2" />
+                        <TextBlock Text="2. Nhập mã này:" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" Margin="0,0,0,8" />
+                        <Border Background="{ThemeResource SheetBgBrush}" CornerRadius="10" Padding="12,8" HorizontalAlignment="Center">
+                            <TextBlock x:Name="DeviceCodeText" Text="----" FontSize="24" FontFamily="{StaticResource AppFontMedium}" Foreground="{ThemeResource PrimaryBrush}" CharacterSpacing="80" IsTextSelectionEnabled="True" TextAlignment="Center" />
+                        </Border>
+                        <ProgressBar x:Name="DeviceCodeProgress" IsIndeterminate="True" Margin="0,14,0,6" />
+                        <TextBlock x:Name="DeviceCodeStatus" Text="Đang lấy mã…" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" TextWrapping="Wrap" />
+                        <Button x:Name="OpenDeviceBrowserButton" Content="Mở google.com/device trên máy này" Style="{StaticResource TonalButton}" Margin="0,14,0,0" Click="OpenDeviceBrowserButton_Click" />
+                        <Button x:Name="CancelDeviceButton" Content="Huỷ" Style="{StaticResource TextButton}" HorizontalAlignment="Center" Margin="0,6,0,0" Click="CancelDeviceButton_Click" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="PasteCodePanel" Visibility="Collapsed">
+                        <TextBlock Text="1. Nhấn nút bên dưới, đăng nhập Google và cho phép truy cập." FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="2. Trình duyệt sẽ chuyển tới địa chỉ http://localhost/?code=… (trang báo lỗi là bình thường). Chạm vào thanh địa chỉ, sao chép toàn bộ địa chỉ." FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                        <TextBlock Text="3. Quay lại đây, dán vào ô bên dưới và nhấn Xác nhận." FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="0,6,0,14" />
+                        <Button x:Name="OpenAuthLinkButton" Content="Mở trang đăng nhập Google" Style="{StaticResource FilledButton}" Click="OpenAuthLinkButton_Click" />
+                        <TextBlock Text="Trình duyệt của điện thoại quá cũ? Làm bước đăng nhập trên PC / điện thoại khác: gửi liên kết hoặc quét QR, rồi dán địa chỉ localhost nhận được vào ô bên dưới." FontSize="12" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Margin="4,12,4,6" />
+                        <Button x:Name="ShareAuthLinkButton" Content="Gửi liên kết đăng nhập sang máy khác…" Style="{StaticResource TonalButton}" Click="ShareAuthLinkButton_Click" />
+                        <Border Background="White" CornerRadius="12" Padding="8" Width="200" Height="200" HorizontalAlignment="Center" Margin="0,12,0,0">
+                            <Image x:Name="AuthQrImage" Stretch="Uniform" Width="184" Height="184" />
+                        </Border>
+                        <TextBox x:Name="AuthCodeBox" PlaceholderText="Dán địa chỉ hoặc mã (4/0A…)" Margin="0,14,0,0" FontSize="14" TextWrapping="Wrap" AcceptsReturn="False" />
+                        <Button x:Name="SubmitAuthCodeButton" Content="Xác nhận" Style="{StaticResource TonalButton}" Margin="0,10,0,0" Click="SubmitAuthCodeButton_Click" />
+                        <TextBlock x:Name="PasteCodeStatus" Text="" FontSize="13" Foreground="{ThemeResource OnSurfaceVariantBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+                        <Button x:Name="CancelPasteButton" Content="Huỷ" Style="{StaticResource TextButton}" HorizontalAlignment="Center" Margin="0,6,0,0" Click="CancelPasteButton_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ================================================================ INPUT DIALOG -->
+        <Grid x:Name="InputDialog" Visibility="Collapsed" Background="{ThemeResource ScrimBrush}" Canvas.ZIndex="600" Tapped="InputDialogScrim_Tapped">
+            <Border Background="{ThemeResource SheetBgBrush}" CornerRadius="20" Margin="24,0" Padding="20" VerticalAlignment="Center" Tapped="InputDialogCard_Tapped">
+                <StackPanel>
+                    <TextBlock x:Name="InputDialogTitle" Text="Thư mục mới" FontSize="20" FontFamily="{StaticResource AppFontMedium}" Foreground="{ThemeResource OnSurfaceBrush}" Margin="0,0,0,14" />
+                    <TextBox x:Name="InputDialogBox" FontSize="16" FontFamily="{StaticResource ContentFont}" KeyDown="InputDialogBox_KeyDown" />
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="InputDialogCancel" Grid.Column="1" Content="Huỷ" Style="{StaticResource TextButton}" Click="InputDialogCancel_Click" />
+                        <Button x:Name="InputDialogOk" Grid.Column="2" Content="Tạo" Style="{StaticResource TextButton}" Click="InputDialogOk_Click" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ================================================================ TOAST -->
+        <Border x:Name="ToastNotification" Background="{ThemeResource SnackbarBgBrush}" CornerRadius="8" Padding="16,12" Margin="16,0,16,84"
+                HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Visibility="Collapsed" Opacity="0" Canvas.ZIndex="700" IsHitTestVisible="False">
+            <TextBlock x:Name="ToastText" Text="" Foreground="{ThemeResource SnackbarTextBrush}" FontSize="14" TextWrapping="Wrap" />
+        </Border>
+    </Grid>
+</Page>
