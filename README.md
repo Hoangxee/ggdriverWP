@@ -7,6 +7,21 @@
 
 ---
 
+## Tải xuống
+
+| Phiên bản | Kiến trúc | Tải về |
+|---|---|---|
+| **1.0.0.0** | ARM (Lumia 1020 và các máy Windows Phone 8.1 khác) | [GDriveWP_1.0.0.0_ARM.appx](https://github.com/Hoangxee/ggdriverWP/raw/main/releases/GDriveWP_1.0.0.0_ARM.appx) |
+
+Gói `.appx` chưa ký, dùng để cài thử (sideload):
+1. Trên điện thoại: **Cài đặt → Cập nhật & bảo mật → Dành cho nhà phát triển** → bật **Chế độ nhà phát triển** (Developer mode).
+2. Cài bằng một trong hai cách:
+   - Cắm USB và dùng **Windows Phone Application Deployment** (`WinAppDeployCmd.exe install -file GDriveWP_1.0.0.0_ARM.appx -ip <ip>`), hoặc
+   - Chép tệp `.appx` vào điện thoại, mở bằng File Explorer rồi cài đặt.
+3. Mở ứng dụng, làm theo phần [Đăng nhập Google](#đăng-nhập-google-quan-trọng) để nhập Client ID.
+
+---
+
 ## Tính năng
 
 ### Giao diện kiểu Google Drive (Android, Material 3)
